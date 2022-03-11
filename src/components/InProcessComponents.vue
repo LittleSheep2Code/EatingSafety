@@ -1,19 +1,17 @@
 <template>
   <div id="container">
-    <strong>{{ name }}</strong>
-    <p>Explore <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+    <strong>{{ props.name }}</strong>
+    <p>正在开发中 O(∩_∩)O</p>
+    <p>暂未开放，尽情期待</p>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script lang="ts" setup>
+import { defineProps } from 'vue';
 
-export default defineComponent({
-  name: 'ExploreContainer',
-  props: {
-    name: String
-  }
-});
+const props = defineProps({
+  name: String
+})
 </script>
 
 <style scoped>

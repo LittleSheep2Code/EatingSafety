@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">EatingSafety</string>
+    <string name="title_activity_main">EatingSafety</string>
+    <string name="package_name">club.smartsheep.health.eatingsafety</string>
+    <string name="custom_url_scheme">club.smartsheep.health.eatingsafety</string>
+</resources>

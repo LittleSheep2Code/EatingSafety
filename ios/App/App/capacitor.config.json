@@ -1,0 +1,6 @@
+{
+	"appId": "club.smartsheep.health.eatingsafety",
+	"appName": "EatingSafety",
+	"webDir": "dist",
+	"bundledWebRuntime": false
+}
