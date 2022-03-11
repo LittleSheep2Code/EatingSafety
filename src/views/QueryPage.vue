@@ -11,11 +11,31 @@
     </ion-header>
     <ion-content :fullscreen="true">
       <ion-list v-if="searchResponse.data.foods.length !== 0">
-        <ion-item v-for="(item, index) in searchResponse.renderData" :key="index" lines="full">
+        <ion-item v-for="(item, index) in searchResponse.renderData" :key="index" lines="full"
+                  @click="viewDetail(item)">
           <ion-label>{{ item["brandName"] }} {{ item["description"] }}</ion-label>
         </ion-item>
       </ion-list>
+
+      <div v-else-if="searchContent.before !== ''"
+           style="text-align: center; position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%)">
+        <strong style="font-size: 20px; line-height: 26px">空空如也</strong>
+        <p style="font-size: 16px; line-height: 22px; color: #8c8c8c; margin: 0">未搜索到符合要求的信息</p>
+      </div>
+
+      <div v-else-if="searchResponse.error != null"
+           style="text-align: center; position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%)">
+        <strong style="font-size: 20px; line-height: 26px">搜索失败</strong>
+        <p style="font-size: 16px; line-height: 22px; color: #8c8c8c; margin: 0">发生错误 {{ searchResponse.error.message }}</p>
+      </div>
+
+      <div v-else
+           style="text-align: center; position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%)">
+        <strong style="font-size: 20px; line-height: 26px">空空如也</strong>
+        <p style="font-size: 16px; line-height: 22px; color: #8c8c8c; margin: 0">搜索点东西试试吧</p>
+      </div>
     </ion-content>
+
     <ion-footer v-if="searchResponse.data.foods.length !== 0">
       <ion-toolbar>
         <ion-buttons slot="start">
@@ -48,8 +68,12 @@ import {
   IonSearchbar,
   IonTitle,
   IonToolbar,
-  loadingController
+  loadingController,
+  modalController,
+  toastController
 } from '@ionic/vue';
+
+import QueryDetail from "@/components/QueryDetailComponents.vue";
 
 import {Storage} from "@ionic/storage";
 import APIConfig from "@/ts/DefaultConfig/APIConfig";
@@ -66,13 +90,15 @@ const searchContent = reactive({
   data: "",
   before: ""
 })
-const searchResponse = reactive({
+const searchResponse: any = reactive({
   data: {
     totalHits: 0,
     foods: []
   },
 
   renderData: [],
+
+  error: null,
 
   // Pagination
   total: 0,
@@ -92,6 +118,21 @@ function clearData() {
   searchResponse.current = 0;
   searchResponse.pages = 0;
 
+  searchResponse.error = null;
+
+  searchContent.before = '';
+}
+
+async function viewDetail(item: object) {
+  const modal = await modalController.create({
+    component: QueryDetail,
+    componentProps: {food: item},
+    swipeToClose: true,
+    animated: true,
+    showBackdrop: true,
+    backdropDismiss: true
+  });
+  await modal.present();
 }
 
 async function doQuery() {
@@ -103,7 +144,16 @@ async function doQuery() {
   }
 
   // Query data
-  searchResponse.data = (await axios.get(`https://api.nal.usda.gov/fdc/v1/foods/search?query=${searchContent.data}&pageSize=${config.apiConfig.USDA.totalFetch}&api_key=${config.apiConfig.USDA.apiKey}`)).data;
+  try {
+    const response = await axios.get(`https://api.nal.usda.gov/fdc/v1/foods/search?query=${searchContent.data}&pageSize=${config.apiConfig.USDA.totalFetch}&api_key=${config.apiConfig.USDA.apiKey}`);
+    searchResponse.data = response.data;
+  } catch (e) {
+    searchResponse.error = e;
+    console.error(e);
+    await loading.dismiss();
+    await (await toastController.create({message: "查询出错，请检查配置和控制台", "duration": 3000})).present();
+    return;
+  }
 
   // Parse data
   searchResponse.total = searchResponse.data["totalHits"];

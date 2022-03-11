@@ -1,7 +1,7 @@
 export default {
 
     // Global config
-    paginationItem: 20,
+    paginationItem: 15,
 
     // USDA FDC Configure
     USDA: {
@@ -10,6 +10,6 @@ export default {
         apiKey: "6pXcha56v7rkkVkNy0rrtngkRJedZiL67Tlhq1Ui",
 
         // Fetch how many data from server
-        totalFetch: 10000
+        totalFetch: 2000
     }
 }
